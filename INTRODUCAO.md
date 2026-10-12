@@ -122,7 +122,7 @@ npm run build     # gera dist/ (rode sempre antes de entregar)
 
 ## Pendências
 
-- [ ] Criar o projeto no Supabase, rodar `supabase/setup.sql` e preencher `src/config.js` (passo a passo no `LEIA-ME.md`).
+- [x] Criar o projeto no Supabase, rodar `supabase/setup.sql` e preencher `src/config.js` (feito em 12/10/2026, projeto `bpughareviyswxvcnyae`, região São Paulo).
 - [ ] Ligar o Netlify ao repositório do GitHub.
 - [ ] Teste real com 2 ou 3 pessoas antes do evento.
 - [ ] Abrir o projeto do Supabase alguns dias antes e no dia (projeto gratuito pausa após ~7 dias sem uso).

@@ -5,6 +5,6 @@
 // As variáveis VITE_SUPABASE_URL e VITE_SUPABASE_KEY, se existirem, têm prioridade
 // (opcional: dá para configurar por variáveis de ambiente no Netlify).
 export const SUPABASE_CONFIG = {
-  url: import.meta.env.VITE_SUPABASE_URL || "",
-  key: import.meta.env.VITE_SUPABASE_KEY || "",
+  url: import.meta.env.VITE_SUPABASE_URL || "https://bpughareviyswxvcnyae.supabase.co",
+  key: import.meta.env.VITE_SUPABASE_KEY || "sb_publishable_dj6ihUNcDRpqPL0QouUj8Q_7jRRnZsq",
 };
