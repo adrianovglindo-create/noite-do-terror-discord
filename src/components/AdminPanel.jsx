@@ -17,10 +17,14 @@ export default function AdminPanel() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(true);
   const [drafts, setDrafts] = useState({}); // porcentagens sendo digitadas (gravam ao sair do campo)
+  const [show, setShow] = useState("todos"); // todos | dentro | fora
 
   const sets = useMemo(() => Object.fromEntries(FACETS.map(f => [f.key, new Set(config.filters[f.key])])), [config]);
   const counts = useMemo(() => facetCounts(GAMELIST, sets), [sets]);
-  const rows = useMemo(() => filteredGames(config).filter(g => passName(g, q.trim())), [config, q]);
+  const isOut = g => config.banned.includes(g.id) || config.off.includes(g.id) || !!cards.bans[g.name];
+  const allRows = useMemo(() => filteredGames(config).filter(g => passName(g, q.trim())), [config, q]);
+  const outRows = allRows.filter(isOut);
+  const rows = show === "dentro" ? allRows.filter(g => !isOut(g)) : show === "fora" ? outRows : allRows;
   const active = useMemo(() => activeGames(config), [config]);
   const total = useMemo(() => activeWeights(config).reduce((a, b) => a + b, 0), [config]);
   const typed = useMemo(() => typedSum(config), [config]);
@@ -73,19 +77,28 @@ export default function AdminPanel() {
         <label><input type="radio" name="pmode" value="custom" checked={custom} onChange={() => save(c => ({ ...c, mode: "custom" }))} /> Personalizadas</label>
       </div>
 
+      <div className="showRow" role="group" aria-label="Mostrar na lista">
+        <span style={{ fontWeight: 700 }}>Mostrar:</span>
+        {[["todos", `Todos (${allRows.length})`], ["dentro", `Na roleta (${allRows.length - outRows.length})`], ["fora", `Fora da roleta (${outRows.length})`]].map(([id, label]) => (
+          <button key={id} type="button" aria-pressed={show === id} onClick={() => setShow(id)}>{label}</button>
+        ))}
+      </div>
+
       <FilterChips q={q.trim()} onClearQ={() => setQ("")} filters={sets} onRemove={(k, id) => setFilter(k, id, false)} extra={extra} />
 
       <div className="tableWrap">
-        {!rows.length && <div className="empty"><p>Nenhum jogo com esses filtros. Tire um filtro para montar a roleta.</p></div>}
+        {!rows.length && <div className="empty"><p>{show === "fora" ? "Nenhum jogo fora da roleta." : "Nenhum jogo com esses filtros. Tire um filtro para montar a roleta."}</p></div>}
         {rows.map(g => {
           const isBanned = banned.has(g.id), isOff = off.has(g.id), cb = cards.bans[g.name], cs = cards.saves[g.name];
           const value = g.id in drafts ? drafts[g.id] : (config.pct[g.id] ?? "");
           return (
-            <div key={g.id} className={"rrow" + (isBanned ? " banned" : "") + (cb && !isBanned ? " cardban" : "")}>
+            <div key={g.id} className={"rrow" + (isBanned ? " banned" : "") + (cb && !isBanned ? " cardban" : "") + (isOff && !isBanned ? " off" : "")}>
               <input type="checkbox" className="rtoggle" checked={!isOff && !isBanned} disabled={isBanned} aria-label="Incluir na roleta"
                 onChange={e => save(c => ({ ...c, off: toggleIn(c.off, g.id, !e.target.checked) }))} />
               <GameLink className="rname" name={g.name} />
               <div className="rmeta">
+                {isBanned && <span className="statusTag ban">⛔ Banido pelo ADM</span>}
+                {isOff && !isBanned && <span className="statusTag off">Desmarcado</span>}
                 <span>{playersText(g)}</span><span>{sizeText(g)}</span>
                 <span>{g.themes.map(t => THEME_LABEL[t]).join(", ") || "Tema a confirmar"}</span>
                 {(cb || []).map(p => <span key={"b" + p.id} className="badge b"><PlayerTag player={p} />banido por {p.name}</span>)}

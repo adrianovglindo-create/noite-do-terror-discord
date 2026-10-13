@@ -1,9 +1,9 @@
 // Desenho da roleta. Fatias salvas por carta têm contorno dourado e um ♥.
 import { useMemo } from "react";
 
-const WHEEL_COLORS = ["#C85F1C", "#2E8574", "#6B4FB0", "#A8322B", "#B38200", "#3C6E71", "#9B4722", "#527a4d"];
+export const WHEEL_COLORS = ["#C85F1C", "#2E8574", "#6B4FB0", "#A8322B", "#B38200", "#3C6E71", "#9B4722", "#527a4d"];
 
-export default function WheelSvg({ slices, saves, angle, onDone }) {
+export default function WheelSvg({ slices, saves, angle, onDone, highlight }) {
   const shapes = useMemo(() => {
     const tot = slices.reduce((a, [, w]) => a + w, 0);
     if (!slices.length || tot <= 0) return [];
@@ -28,8 +28,8 @@ export default function WheelSvg({ slices, saves, angle, onDone }) {
   return (
     <svg viewBox="0 0 200 200" role="img" aria-label="Roleta de jogos" style={{ transform: `rotate(${angle}deg)` }} onTransitionEnd={onDone}>
       {shapes.length ? shapes.map(s => (
-        <g key={s.name}>
-          <path d={s.d} fill={s.fill} stroke={s.saved ? "#FFD34D" : "rgba(0,0,0,.25)"} strokeWidth={s.saved ? 1.2 : 0.5} />
+        <g key={s.name} opacity={highlight && highlight !== s.name ? 0.28 : 1}>
+          <path d={s.d} fill={s.fill} stroke={highlight === s.name ? "#FFFFFF" : s.saved ? "#FFD34D" : "rgba(0,0,0,.25)"} strokeWidth={highlight === s.name ? 2.2 : s.saved ? 1.2 : 0.5} />
           {s.label && <text x={s.label.x} y={s.label.y} textAnchor="middle" dominantBaseline="middle" fontSize="5.5" fontWeight="700" fill="#fff" transform={s.label.rot}>{s.label.text}</text>}
         </g>
       )) : <>

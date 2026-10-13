@@ -95,7 +95,7 @@ Foram definidas pelo dono do evento. Não mude sem ele pedir.
 | `src/lib/pool.js` | Monta o grupo da roleta a partir da `config` do ADM |
 | `src/lib/store.js` | Leitura e escrita no Supabase + tempo real |
 | `src/state/evento.js` | Estado global (`useEvento()`) e todas as ações: criar conta, pular, girar, colocar carta… |
-| `src/components/` | Telas: `Catalog`, `Roulette`, `SpinResult`, `PlayersCards`, `AccountBox`, `AdminPanel`, `HistoryList`, `WheelSvg`, `common` |
+| `src/components/` | Telas: `Catalog`, `Roulette`, `SpinResult`, `PlayersCards`, `AccountBox`, `AdminPanel`, `HistoryList`, `WheelSvg`, `WheelList` (lista "Na roleta agora" / "Fora da roleta", visível para todos), `common` |
 | `src/style.css` | Todo o visual (cores em variáveis no `:root`, tema claro e escuro) |
 | `src/config.js` | URL e chave anon do Supabase |
 | `supabase/setup.sql` | Criação da tabela, permissões e tempo real |

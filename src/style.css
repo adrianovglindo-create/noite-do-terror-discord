@@ -105,7 +105,17 @@ footer p{max-width:72ch}
 
 .tableWrap{border-top:2px solid var(--ink)}
 .rrow{display:grid;grid-template-columns:auto 1fr auto auto;gap:4px 14px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--line)}
-.rrow.banned{opacity:.5}
+.rrow.banned{background:color-mix(in srgb,var(--t-terror) 12%,transparent);box-shadow:inset 4px 0 0 var(--t-terror)}
+.rrow.banned .rname{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
+.rrow.banned .rmeta>span:not(.statusTag),.rrow.banned .pctCell{opacity:.5}
+.rrow.off{opacity:.6}
+.rrow.off .rname{color:var(--muted)}
+.statusTag{font-size:.78rem;font-weight:800;padding:1px 8px;border-radius:6px;letter-spacing:.02em}
+.statusTag.ban{background:var(--t-terror);color:var(--bg)}
+.statusTag.off{border:1.5px dashed var(--muted);color:var(--muted)}
+.showRow{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:0 0 14px;font-size:.92rem}
+.showRow button{font:inherit;font-size:.86rem;font-weight:700;padding:5px 12px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.showRow button[aria-pressed=true]{border-color:var(--ink);color:var(--ink);background:var(--panel)}
 .rrow .rtoggle{width:20px;height:20px;accent-color:var(--pumpkin)}
 .rrow .rname{font-weight:700}
 .rrow .rmeta{font-size:.84rem;color:var(--muted);grid-column:2;display:flex;flex-wrap:wrap;gap:4px 10px}
@@ -176,6 +186,29 @@ footer p{max-width:72ch}
 .hist li.undone{opacity:.5;text-decoration:line-through}
 .hist time{color:var(--muted);font-variant-numeric:tabular-nums}
 .rrow.cardban{opacity:.55}
+.rrow.cardban .rname{text-decoration:line-through}
+
+/* ---- Lista "Na roleta agora" ---- */
+.wlist{max-width:400px;margin:22px auto 0;border:2px solid var(--ink);border-radius:14px;padding:12px 14px;background:var(--panel)}
+.wlistHead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+.wlistHead h4{font-family:"Fraunces",Georgia,serif;margin:0;font-size:1.1rem}
+.wlistHead span{color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
+.wlistSearch{width:100%;font:inherit;font-size:.9rem;padding:7px 12px;border:1.5px solid var(--line);border-radius:999px;background:var(--bg);color:var(--ink);margin-bottom:8px}
+.wlistItems{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto;font-size:.88rem}
+.wlistItems li{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;cursor:pointer}
+.wlistItems li:hover,.wlistItems li.on{background:var(--bg)}
+.wlistItems li.on{box-shadow:inset 0 0 0 2px var(--ink)}
+.wlistItems li.none{cursor:default;color:var(--muted)}
+.wsw{width:12px;height:12px;border-radius:3px;flex:none}
+.wln{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:inherit;text-decoration:none}
+.wln:hover{text-decoration:underline}
+.wpct{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.82rem}
+.wout{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;font-size:.88rem}
+.wout summary{cursor:pointer;font-weight:700}
+.wout ul{list-style:none;margin:0 0 6px;padding:0}
+.wout li{padding:3px 0;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.woutTitle{margin:10px 0 4px;font-weight:700;font-size:.85rem}
+.struck{text-decoration:line-through;color:var(--muted)}
 
 @media (max-width:900px){
   .wheelWrap{grid-template-columns:1fr;gap:24px}

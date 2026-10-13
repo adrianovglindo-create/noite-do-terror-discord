@@ -9,6 +9,7 @@ import HistoryList from "./HistoryList.jsx";
 import AccountBox from "./AccountBox.jsx";
 import PlayersCards from "./PlayersCards.jsx";
 import AdminPanel from "./AdminPanel.jsx";
+import WheelList from "./WheelList.jsx";
 
 const AUTO_RESPIN_MS = 1700;
 const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion:reduce)").matches;
@@ -28,6 +29,7 @@ export default function Roulette() {
   const s = ev.data.spin;
   // spinning/angle/frozen: animação; revealSeq: giro cujo resultado está à mostra
   const [anim, setAnim] = useState({ spinning: false, angle: 0, frozen: null, revealSeq: 0 });
+  const [highlight, setHighlight] = useState(null);
   const r = useRef({ first: true, animSeq: 0, revealSeq: 0, autoSeq: 0, angle: 0, finish: null });
 
   function autoRespin(cur) {
@@ -73,13 +75,14 @@ export default function Roulette() {
         <div className="wheelCol">
           <div className="wheelStage">
             <div className="pointer" aria-hidden="true">🔻</div>
-            <WheelSvg slices={anim.frozen || ev.wheel} saves={ev.cards.saves} angle={anim.angle} onDone={() => r.current.finish && r.current.finish()} />
+            <WheelSvg slices={anim.frozen || ev.wheel} saves={ev.cards.saves} angle={anim.angle} highlight={anim.spinning ? null : highlight} onDone={() => r.current.finish && r.current.finish()} />
             <div className="hub" aria-hidden="true">🎃</div>
           </div>
           {adminView
             ? <button id="spinBtn" disabled={anim.spinning || !ev.wheel.length} onClick={() => spin().catch(e => alert(e.message))}>Girar a roleta</button>
             : <p className="facet-note" style={{ textAlign: "center", marginTop: 14 }}>Só o ADM gira a roleta. Fica de olho na live!</p>}
           {showResult ? <SpinResult /> : <div className="winner" />}
+          {ev.status === "online" && <WheelList highlight={highlight} onHighlight={setHighlight} disabled={anim.spinning} />}
           <HistoryList />
         </div>
 
