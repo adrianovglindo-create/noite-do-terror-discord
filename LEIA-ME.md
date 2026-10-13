@@ -12,7 +12,7 @@ Feito com React + Vite. O banco é o Supabase (uma tabela só, com tempo real).
    - **Project URL** (ex.: `https://abcdefghijkl.supabase.co`)
    - a chave **anon** / **publishable** (é pública, pode ir no código)
    - **Nunca** use a chave `service_role` / `secret` no site.
-4. Coloque as duas em [`src/config.js`](src/config.js), no lugar das aspas vazias:
+4. Coloque as duas em [`src/config.js`](src/config.js) (no projeto atual isso já está feito):
    ```js
    url: import.meta.env.VITE_SUPABASE_URL || "https://abcdefghijkl.supabase.co",
    key: import.meta.env.VITE_SUPABASE_KEY || "eyJ...a-chave-anon...",
@@ -20,14 +20,15 @@ Feito com React + Vite. O banco é o Supabase (uma tabela só, com tempo real).
 
 > Projetos gratuitos do Supabase pausam depois de cerca de 7 dias sem uso. Abra o painel do projeto (e o site) alguns dias antes do evento e de novo no dia, para garantir que está ativo.
 
-## 2. Publicar no Netlify
+## 2. Publicar na Vercel
 
-O jeito recomendado é ligar o Netlify ao repositório do GitHub. Assim, cada mudança enviada para a `main` vira um deploy sozinha, e cada pull request ganha um link de prévia.
+O site está em **https://noite-do-terror-discord.vercel.app**, num projeto da Vercel ligado a este repositório. Cada mudança enviada para a `main` vira um deploy sozinha, e cada pull request ganha um link de prévia.
 
-1. No Netlify: **Add new site > Import an existing project > GitHub** e escolha este repositório.
-2. As configurações já vêm do `netlify.toml` (comando `npm run build`, pasta `dist`). É só confirmar.
+Para ligar de novo do zero (outra conta, por exemplo):
 
-Se preferir arrastar e soltar: rode `npm run build` e arraste a pasta **`dist`** (não a pasta do projeto) em **Deploys**.
+1. Em https://vercel.com/new, escolha **Import Git Repository > GitHub** e importe este repositório. Se ele não aparecer, libere o acesso em **Adjust GitHub App Permissions**.
+2. A Vercel reconhece o Vite sozinha (comando `npm run build`, pasta `dist`). É só clicar em **Deploy**.
+3. Não precisa de variáveis de ambiente: a URL e a chave pública do Supabase já estão em `src/config.js`.
 
 ## 3. No dia do evento
 

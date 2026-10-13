@@ -61,7 +61,7 @@ Foram definidas pelo dono do evento. Não mude sem ele pedir.
 ## Como funciona por dentro
 
 - **React 19 + Vite**, em JavaScript, sem TypeScript e sem biblioteca de estado.
-- Publicado no **Netlify**, ligado ao GitHub: build `npm run build`, pasta `dist` (ver `netlify.toml`).
+- Publicado na **Vercel** (https://noite-do-terror-discord.vercel.app), ligada ao GitHub: cada commit na `main` vira deploy sozinho. A Vercel detecta o Vite (build `npm run build`, pasta `dist`); cabeçalhos extras ficam em `vercel.json`.
 - **Supabase é o único lugar onde o estado vive.** Não existe modo local/offline: cada participante usa as cartas no próprio aparelho, e a roleta que vale é a do ADM, que aparece na live.
 - Tudo fica em **uma tabela**, `public.estado`, com as colunas `key` (texto), `value` (json), `ver` (número da versão) e `updated_at`. O SQL está em `supabase/setup.sql`.
 - Cada linha é um pedaço do estado:
@@ -99,7 +99,7 @@ Foram definidas pelo dono do evento. Não mude sem ele pedir.
 | `src/style.css` | Todo o visual (cores em variáveis no `:root`, tema claro e escuro) |
 | `src/config.js` | URL e chave anon do Supabase |
 | `supabase/setup.sql` | Criação da tabela, permissões e tempo real |
-| `LEIA-ME.md` | Passo a passo para humanos: criar o Supabase, publicar no Netlify, usar no dia |
+| `LEIA-ME.md` | Passo a passo para humanos: criar o Supabase, publicar na Vercel, usar no dia |
 
 ## Regras que não podem ser quebradas
 
@@ -123,7 +123,7 @@ npm run build     # gera dist/ (rode sempre antes de entregar)
 ## Pendências
 
 - [x] Criar o projeto no Supabase, rodar `supabase/setup.sql` e preencher `src/config.js` (feito em 12/10/2026, projeto `bpughareviyswxvcnyae`, região São Paulo).
-- [ ] Ligar o Netlify ao repositório do GitHub.
+- [x] Ligar a Vercel ao repositório do GitHub (projeto `noite-do-terror-discord`, equipe `adriano-49ab`).
 - [ ] Teste real com 2 ou 3 pessoas antes do evento.
 - [ ] Abrir o projeto do Supabase alguns dias antes e no dia (projeto gratuito pausa após ~7 dias sem uso).
 - [ ] Trocar os jokers genéricos pelo design próprio das cartas quando o dono enviar.
