@@ -1,5 +1,5 @@
 // Aba Catálogo: busca, filtros facetados, ordenação e lista de jogos.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GAMELIST } from "../data/games.js";
 import { FACETS, THEME_LABEL, STATUS_LABEL, passSearch, passFacets, facetCounts, playersText, sizeText } from "../lib/filters.js";
 import { FacetGroup, FilterChips, GameLink } from "./common.jsx";
@@ -21,6 +21,10 @@ export default function Catalog() {
     if (sort === "status") return (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) || a.key.localeCompare(b.key);
     return a.key.localeCompare(b.key);
   }), [base, filters, sort]);
+
+  // ao mudar busca, filtro ou ordem, a lista volta para o topo
+  const listRef = useRef(null);
+  useEffect(() => { if (listRef.current) listRef.current.scrollTop = 0; }, [q, filters, sort]);
 
   const toggle = (key, id, on) => setFilters(f => { const s = new Set(f[key]); on ? s.add(id) : s.delete(id); return { ...f, [key]: s }; });
   const clearAll = () => { setQ(""); setFilters(EMPTY); };
@@ -50,7 +54,7 @@ export default function Catalog() {
         </div>
         <FilterChips q={q.trim()} onClearQ={() => setQ("")} filters={filters}
           onRemove={(k, id) => toggle(k, id, false)} onClearAll={clearAll} />
-        <ul className="list">
+        <ul className="list scrollBox" ref={listRef}>
           {!results.length && (
             <li className="empty">
               <p>Nenhum jogo combina com essa busca e esses filtros. Tente tirar um filtro ou buscar só pelo nome.</p>

@@ -1,7 +1,7 @@
 // Área do ADM: monta o grupo de jogos da roleta (filtros, desmarcar, "Banir (ADM)"
 // e porcentagens). Tudo fica na linha "config" do banco, então todos veem a
 // mesma roleta e o ADM pode trocar de aparelho.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GAMELIST } from "../data/games.js";
 import { FACETS, THEME_LABEL, facetCounts, passName, playersText, sizeText } from "../lib/filters.js";
 import { filteredGames, activeGames, activeWeights, typedSum, normalizedPct } from "../lib/pool.js";
@@ -18,6 +18,8 @@ export default function AdminPanel() {
   const [open, setOpen] = useState(true);
   const [drafts, setDrafts] = useState({}); // porcentagens sendo digitadas (gravam ao sair do campo)
   const [show, setShow] = useState("todos"); // todos | dentro | fora
+  const tableRef = useRef(null);
+  useEffect(() => { if (tableRef.current) tableRef.current.scrollTop = 0; }, [show, q, config.filters]);
 
   const sets = useMemo(() => Object.fromEntries(FACETS.map(f => [f.key, new Set(config.filters[f.key])])), [config]);
   const counts = useMemo(() => facetCounts(GAMELIST, sets), [sets]);
@@ -86,7 +88,7 @@ export default function AdminPanel() {
 
       <FilterChips q={q.trim()} onClearQ={() => setQ("")} filters={sets} onRemove={(k, id) => setFilter(k, id, false)} extra={extra} />
 
-      <div className="tableWrap">
+      <div className="tableWrap scrollBox" ref={tableRef}>
         {!rows.length && <div className="empty"><p>{show === "fora" ? "Nenhum jogo fora da roleta." : "Nenhum jogo com esses filtros. Tire um filtro para montar a roleta."}</p></div>}
         {rows.map(g => {
           const isBanned = banned.has(g.id), isOff = off.has(g.id), cb = cards.bans[g.name], cs = cards.saves[g.name];
