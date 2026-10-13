@@ -1,9 +1,36 @@
 // Desenho da roleta. Fatias salvas por carta têm contorno dourado e um ♥.
-import { useMemo } from "react";
+// O giro é animado quadro a quadro (requestAnimationFrame), e não por transição
+// CSS: transição não anima um elemento que estava escondido (aba Catálogo), e
+// quem estava lá via a roda pular direto para o resultado.
+import { useEffect, useMemo, useRef } from "react";
+
+export const SPIN_MS = 4600;
+const easeOut = t => 1 - Math.pow(1 - t, 4);
+const reducedMotion = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion:reduce)").matches;
 
 export const WHEEL_COLORS = ["#C85F1C", "#2E8574", "#6B4FB0", "#A8322B", "#B38200", "#3C6E71", "#9B4722", "#527a4d"];
 
 export default function WheelSvg({ slices, saves, angle, onDone, highlight }) {
+  const svgRef = useRef(null);
+  const shown = useRef(null);      // ângulo desenhado agora
+  const doneRef = useRef(onDone);
+  doneRef.current = onDone;
+
+  useEffect(() => {
+    const el = svgRef.current; if (!el) return;
+    const paint = a => { shown.current = a; el.style.transform = `rotate(${a}deg)`; };
+    if (shown.current == null || shown.current === angle) { paint(angle); return; }
+    const from = shown.current, dur = reducedMotion() ? 250 : SPIN_MS, t0 = performance.now();
+    let raf = 0;
+    const step = now => {
+      const p = Math.min(1, (now - t0) / dur);
+      paint(from + (angle - from) * easeOut(p));
+      if (p < 1) raf = requestAnimationFrame(step); else if (doneRef.current) doneRef.current();
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [angle]);
+
   const shapes = useMemo(() => {
     const tot = slices.reduce((a, [, w]) => a + w, 0);
     if (!slices.length || tot <= 0) return [];
@@ -26,7 +53,7 @@ export default function WheelSvg({ slices, saves, angle, onDone, highlight }) {
   }, [slices, saves]);
 
   return (
-    <svg viewBox="0 0 200 200" role="img" aria-label="Roleta de jogos" style={{ transform: `rotate(${angle}deg)` }} onTransitionEnd={onDone}>
+    <svg ref={svgRef} viewBox="0 0 200 200" role="img" aria-label="Roleta de jogos">
       {shapes.length ? shapes.map(s => (
         <g key={s.name} opacity={highlight && highlight !== s.name ? 0.28 : 1}>
           <path d={s.d} fill={s.fill} stroke={highlight === s.name ? "#FFFFFF" : s.saved ? "#FFD34D" : "rgba(0,0,0,.25)"} strokeWidth={highlight === s.name ? 2.2 : s.saved ? 1.2 : 0.5} />

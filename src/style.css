@@ -101,7 +101,7 @@ footer p{max-width:72ch}
 .wheelStage{position:relative;width:100%;max-width:400px;margin:0 auto;aspect-ratio:1}
 /* o recorte redondo impede que a roda girada (mais larga na diagonal) estique a página no celular */
 .wheelClip{position:absolute;inset:0;border-radius:50%;overflow:hidden}
-.wheelStage svg{width:100%;height:100%;transition:transform 4.6s cubic-bezier(.17,.67,.14,1)}
+.wheelStage svg{width:100%;height:100%;will-change:transform}
 .pointer{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:2rem;line-height:1;z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
 .hub{position:absolute;inset:0;margin:auto;width:66px;height:66px;border-radius:50%;background:var(--bg);border:3px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:1.8rem;z-index:1}
 #spinBtn{display:block;width:100%;max-width:400px;margin:20px auto 0;font:inherit;font-weight:800;font-size:1.2rem;padding:16px;border:0;border-radius:16px;background:var(--pumpkin);color:var(--pumpkin-ink);cursor:pointer}
@@ -238,7 +238,6 @@ footer p{max-width:72ch}
   h1{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
   @keyframes rise{from{opacity:0;transform:translateY(14px);font-variation-settings:"SOFT" 0,"WONK" 0}to{opacity:1;transform:none}}
 }
-@media (prefers-reduced-motion:reduce){ .wheelStage svg{transition:transform .2s linear} }
 
 /* ---- Comemoração (jogo escolhido) ---- */
 .party{position:fixed;inset:0;z-index:1000;overflow:hidden;background:radial-gradient(ellipse at center,rgba(45,12,58,.86),rgba(8,3,12,.95));-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);animation:partyIn .25s ease-out both;cursor:pointer}
