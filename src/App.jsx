@@ -4,6 +4,15 @@ import Roulette from "./components/Roulette.jsx";
 
 export default function App() {
   const [tab, setTab] = useState("cat");
+  // quando o ADM gira, todo mundo vai para a aba Roleta e a roda fica à vista
+  function showSpin() {
+    setTab("rou");
+    setTimeout(() => {
+      const el = document.querySelector(".wheelStage"); if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (r.top < 0 || r.bottom > window.innerHeight) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 60);
+  }
   return (
     <>
       <header>
@@ -18,7 +27,7 @@ export default function App() {
 
       {/* as duas abas ficam montadas para a roleta acompanhar o giro mesmo no catálogo */}
       <section className={"panel" + (tab === "cat" ? " active" : "")} id="panel-cat" role="tabpanel" aria-labelledby="tab-cat"><Catalog /></section>
-      <section className={"panel" + (tab === "rou" ? " active" : "")} id="panel-rou" role="tabpanel" aria-labelledby="tab-rou"><Roulette /></section>
+      <section className={"panel" + (tab === "rou" ? " active" : "")} id="panel-rou" role="tabpanel" aria-labelledby="tab-rou"><Roulette onSpinStart={showSpin} /></section>
 
       <footer>
         <p>Jogadores, temas e tamanhos são aproximados e podem mudar com atualizações. Tamanho é o espaço em disco informado nos requisitos da Steam. Jogos com aviso amarelo só podem ser jogados depois que o desenvolvedor libera o acesso.</p>

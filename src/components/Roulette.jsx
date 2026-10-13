@@ -10,6 +10,7 @@ import AccountBox from "./AccountBox.jsx";
 import PlayersCards from "./PlayersCards.jsx";
 import AdminPanel from "./AdminPanel.jsx";
 import WheelList from "./WheelList.jsx";
+import Celebration from "./Celebration.jsx";
 
 const AUTO_RESPIN_MS = 1700;
 const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion:reduce)").matches;
@@ -24,13 +25,14 @@ function SyncBar({ status, connected }) {
   return <div className="syncBar"><span><span className="dotS" style={{ background: color }} />{text}</span></div>;
 }
 
-export default function Roulette() {
+export default function Roulette({ onSpinStart }) {
   const ev = useEvento();
   const s = ev.data.spin;
   // spinning/angle/frozen: animação; revealSeq: giro cujo resultado está à mostra
   const [anim, setAnim] = useState({ spinning: false, angle: 0, frozen: null, revealSeq: 0 });
   const [highlight, setHighlight] = useState(null);
-  const r = useRef({ first: true, animSeq: 0, revealSeq: 0, autoSeq: 0, angle: 0, finish: null });
+  const [party, setParty] = useState(null); // jogo sendo comemorado
+  const r = useRef({ first: true, animSeq: 0, revealSeq: 0, autoSeq: 0, angle: 0, finish: null, celebrated: 0 });
 
   function autoRespin(cur) {
     const R = r.current;
@@ -49,9 +51,15 @@ export default function Roulette() {
     const R = r.current;
     if (!s || !s.seq) { R.first = false; R.animSeq = 0; R.revealSeq = 0; setAnim(a => ({ ...a, revealSeq: 0 })); return; }
     // ao abrir a página (ou se o giro "voltou"), mostra o resultado sem animar
-    if (R.first || s.seq < R.animSeq) { R.first = false; R.animSeq = s.seq; reveal(s.seq); return; }
+    if (R.first || s.seq < R.animSeq) {
+      // não comemora de novo um jogo que já tinha sido escolhido antes de a página abrir
+      if (s.state === "chosen") R.celebrated = s.seq;
+      R.first = false; R.animSeq = s.seq; reveal(s.seq); return;
+    }
     if (s.seq > R.animSeq) {
       R.animSeq = s.seq;
+      setParty(null);
+      if (onSpinStart) onSpinStart(); // leva quem está no catálogo para ver o giro
       const fw = ev.wheel; const center = sliceCenter(fw, s.winner);
       if (center == null) { reveal(s.seq); return; }
       R.angle = R.angle - (R.angle % 360) + 5 * 360 + (360 - center);
@@ -65,17 +73,26 @@ export default function Roulette() {
     autoRespin(s);
   }, [ev.loaded, s && s.seq, s && s.state]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // comemoração: quando o ADM confirma o jogo, depois que a roda parou nesta tela
+  useEffect(() => {
+    const R = r.current;
+    if (!s || s.state !== "chosen" || anim.spinning || anim.revealSeq !== s.seq || R.celebrated === s.seq) return;
+    R.celebrated = s.seq;
+    setParty(s.winner);
+  }, [s && s.seq, s && s.state, anim.revealSeq, anim.spinning]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const adminView = ev.isAdmin && ev.status === "online";
   const showResult = !!(s && s.seq && anim.revealSeq === s.seq && !anim.spinning);
 
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto", padding: "18px 20px 60px" }}>
       <SyncBar status={ev.status} connected={ev.connected} />
+      {party && <Celebration game={party} onClose={() => setParty(null)} />}
       <div className="wheelWrap">
         <div className="wheelCol">
           <div className="wheelStage">
             <div className="pointer" aria-hidden="true">🔻</div>
-            <WheelSvg slices={anim.frozen || ev.wheel} saves={ev.cards.saves} angle={anim.angle} highlight={anim.spinning ? null : highlight} onDone={() => r.current.finish && r.current.finish()} />
+            <div className="wheelClip"><WheelSvg slices={anim.frozen || ev.wheel} saves={ev.cards.saves} angle={anim.angle} highlight={anim.spinning ? null : highlight} onDone={() => r.current.finish && r.current.finish()} /></div>
             <div className="hub" aria-hidden="true">🎃</div>
           </div>
           {adminView
