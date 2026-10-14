@@ -1,4 +1,6 @@
-// Lista de jogos do evento. Para adicionar um jogo, inclua uma linha no RAW.
+// Lista de jogos do evento. Para adicionar um jogo, inclua uma linha no RAW (a ordem não importa).
+// O id de cada jogo é o NOME: banimentos, porcentagens e cartas ficam salvos pelo nome,
+// então renomear um jogo já usado faz ele perder esses dados.
 // Formato: [nome, mín. de jogadores, máx. (null = sem limite conhecido), temas, status, aviso de acesso, tamanho em GB]
 // Temas: T = Terror, D = Diversão, P = Competitivo, C = Cooperativo (vazio = a confirmar)
 // Status: G = Grátis, P = Hydra, V = A confirmar
@@ -56,7 +58,8 @@ export const RAW = [
 ["WE ARE SO COOKED (Mergen Studios)",1,20,"CD","G","Playtest com botão “Solicitar acesso” na Steam.",1],
 ["WE ARE SO DEAD",2,6,"TCD","P",null,3],["We Are So F*cked: The Last Critter Crew (Demo)",1,1,"D","G",null,1.8],
 ["We Gotta Go",1,4,"TCD","P",null,4],["Wheelchair Wizards",2,8,"DP","G",null,0.2],["Whisper Mountain Outbreak",1,4,"TC","P",null,1],
-["wildwoods",1,4,"C","V",null,1],["WISE GUYS",2,12,"DP","P",null,2.5],["YAPYAP",1,6,"TCD","P",null,2]
+["wildwoods",1,4,"C","V",null,1],["WISE GUYS",2,12,"DP","P",null,2.5],["YAPYAP",1,6,"TCD","P",null,2],
+["PILGRIM",1,4,"TCD","P",null,2],["Witch It",1,16,"DP","P",null,7]
 ];
 
 export const GAMELIST = RAW.map(([name,min,max,themes,status,access,size])=>({
@@ -66,6 +69,7 @@ export const BYNAME = Object.fromEntries(GAMELIST.map(g=>[g.name,g]));
 
 // Páginas confirmadas na Steam; os demais abrem a busca da Steam pelo nome
 export const STEAM_IDS={
+ "PILGRIM":2965660,"Witch It":559650,
  "Scam Line":2794590,"Capote":3345950,"WE ARE SO COOKED (Mergen Studios)":3754350,"Wheelchair Wizards":3832630,
  "Salvation Denied":4193590,"Deathground":1200770,"CUT THAT WIRE":3498650,"VHOLUME":4131730,"Funnel Runners":3712080,
  "Last Man Sitting":774291,"Meowgic":4252290,"Thick As Thieves":3341000,"WE ARE SO DEAD":4796830,"Shift At Midnight":3722330,
