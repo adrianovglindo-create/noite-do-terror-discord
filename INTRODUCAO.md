@@ -57,7 +57,7 @@ Foram definidas pelo dono do evento. Não mude sem ele pedir.
   2. Todos os aparelhos animam até o mesmo jogo.
   3. Aparece "Alguém quer pular?". Se duas pessoas apertam juntas, só a primeira gasta a carta.
   4. Quando alguém pula, a tela do ADM gira de novo sozinha depois de 1,7 s.
-  5. Quando o ADM aperta "Vai ser esse! ✅", todos veem a comemoração em tela cheia (`src/components/Celebration.jsx`): explosões, confete, abóboras voando, tela tremendo e som sintetizado (botão 🔊/🔇, lembrado em `nt-som`). Ela só começa depois que a roda parou em cada tela, não aparece para quem abre a página depois e fecha sozinha em 9 s, com "Fechar", clique fora ou Esc. Com "reduzir movimento" ligado no aparelho, a festa fica mais calma.
+  5. Quando o ADM aperta "Vai ser esse! ✅", todos veem a comemoração em tela cheia (`src/components/Celebration.jsx`): explosões, confete, abóboras voando, tela tremendo e som sintetizado (botão 🔊/🔇, lembrado em `nt-som`). Como o navegador só libera som depois de um toque na página, a aba Roleta mostra "🔊 Toque aqui para ativar o som da festa" até a pessoa tocar em algo. Ela só começa depois que a roda parou em cada tela, não aparece para quem abre a página depois e fecha sozinha em 9 s, com "Fechar", clique fora ou Esc. Com "reduzir movimento" ligado no aparelho, a festa fica mais calma.
 - Quando o ADM gira, quem estiver na aba Catálogo é levado para a aba Roleta para ver o giro.
 
 ## Como funciona por dentro

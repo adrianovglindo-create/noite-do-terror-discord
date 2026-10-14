@@ -1,7 +1,7 @@
 // Comemoração quando o ADM confirma o jogo ("Vai ser esse! ✅"): tela cheia com
 // explosões, confete, abóboras voando, tela tremendo e som. Aparece para todos.
 // Sem bibliotecas: tudo é desenhado num <canvas> e o som é sintetizado na hora.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { LS } from "../lib/storage.js";
 import { GameLink } from "./common.jsx";
@@ -22,10 +22,26 @@ function audio() {
   return actx;
 }
 // navegadores só liberam som depois de um clique/toque na página
+const soundListeners = new Set();
+const notify = () => soundListeners.forEach(f => f());
+export function unlockSound() {
+  const a = audio(); if (!a) return;
+  if (!a.__watched) { a.__watched = true; a.addEventListener("statechange", notify); }
+  if (a.state === "suspended") a.resume().then(notify).catch(() => {});
+}
 if (typeof window !== "undefined") {
-  const unlock = () => { const a = audio(); if (a && a.state === "suspended") a.resume().catch(() => {}); };
-  window.addEventListener("pointerdown", unlock, { passive: true });
-  window.addEventListener("keydown", unlock);
+  window.addEventListener("pointerdown", unlockSound, { passive: true });
+  window.addEventListener("keydown", unlockSound);
+}
+
+// Aviso para quem ainda não tocou na página: sem esse toque a festa fica muda.
+export function SoundHint() {
+  const locked = useSyncExternalStore(
+    f => { soundListeners.add(f); return () => soundListeners.delete(f); },
+    () => { const a = actx; return !a || a.state !== "running"; }
+  );
+  if (!locked || LS.get("nt-som") === "off" || !(window.AudioContext || window.webkitAudioContext)) return null;
+  return <button type="button" className="soundHint" onClick={unlockSound}>🔊 Toque aqui para ativar o som da festa</button>;
 }
 function noiseBuffer(a, secs) {
   const b = a.createBuffer(1, a.sampleRate * secs, a.sampleRate); const d = b.getChannelData(0);

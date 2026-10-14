@@ -10,7 +10,7 @@ import AccountBox from "./AccountBox.jsx";
 import PlayersCards from "./PlayersCards.jsx";
 import AdminPanel from "./AdminPanel.jsx";
 import WheelList from "./WheelList.jsx";
-import Celebration from "./Celebration.jsx";
+import Celebration, { SoundHint } from "./Celebration.jsx";
 
 const AUTO_RESPIN_MS = 1700;
 const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion:reduce)").matches;
@@ -87,6 +87,7 @@ export default function Roulette({ onSpinStart }) {
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto", padding: "18px 20px 60px" }}>
       <SyncBar status={ev.status} connected={ev.connected} />
+      <SoundHint />
       {party && <Celebration game={party} onClose={() => setParty(null)} />}
       <div className="wheelWrap">
         <div className="wheelCol">

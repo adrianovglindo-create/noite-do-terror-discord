@@ -261,3 +261,6 @@ footer p{max-width:72ch}
   .partyCard{animation:partyIn .3s ease-out both}
   .partyName{animation:none}
 }
+.soundHint{display:inline-flex;align-items:center;gap:6px;font:inherit;font-weight:700;font-size:.9rem;margin:-6px 0 16px;padding:7px 14px;border-radius:999px;border:2px dashed var(--pumpkin);background:transparent;color:var(--ink);cursor:pointer;animation:hintPulse 1.6s ease-in-out infinite}
+@keyframes hintPulse{50%{border-color:transparent}}
+@media (prefers-reduced-motion:reduce){.soundHint{animation:none}}
