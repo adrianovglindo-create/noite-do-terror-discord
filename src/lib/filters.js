@@ -44,6 +44,7 @@ export function playersText(g) {
 }
 export function sizeText(g) {
   if (g.size == null) return "Tamanho a confirmar";
+  if (g.size === 0) return "Joga no navegador";
   if (g.size < 1) return `~${Math.round(g.size * 1000)} MB`;
   return `~${(g.size % 1 === 0 ? g.size : g.size.toFixed(1)).toString().replace(".", ",")} GB`;
 }

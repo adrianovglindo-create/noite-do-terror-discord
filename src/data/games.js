@@ -1,7 +1,8 @@
 // Lista de jogos do evento. Para adicionar um jogo, inclua uma linha no RAW (a ordem não importa).
 // O id de cada jogo é o NOME: banimentos, porcentagens e cartas ficam salvos pelo nome,
 // então renomear um jogo já usado faz ele perder esses dados.
-// Formato: [nome, mín. de jogadores, máx. (null = sem limite conhecido), temas, status, aviso de acesso, tamanho em GB]
+// Formato: [nome, mín. de jogadores, máx. (null = sem limite conhecido), temas, status, aviso de acesso, tamanho em GB (0 = joga no navegador)]
+// Jogos fora da Steam: coloque o link em CUSTOM_URL, lá embaixo.
 // Temas: T = Terror, D = Diversão, P = Competitivo, C = Cooperativo (vazio = a confirmar)
 // Status: G = Grátis, P = Hydra, V = A confirmar
 export const RAW = [
@@ -59,7 +60,8 @@ export const RAW = [
 ["WE ARE SO DEAD",2,6,"TCD","P",null,3],["We Are So F*cked: The Last Critter Crew (Demo)",1,1,"D","G",null,1.8],
 ["We Gotta Go",1,4,"TCD","P",null,4],["Wheelchair Wizards",2,8,"DP","G",null,0.2],["Whisper Mountain Outbreak",1,4,"TC","P",null,1],
 ["wildwoods",1,4,"C","V",null,1],["WISE GUYS",2,12,"DP","P",null,2.5],["YAPYAP",1,6,"TCD","P",null,2],
-["PILGRIM",1,4,"TCD","P",null,2],["Witch It",1,16,"DP","P",null,7]
+["PILGRIM",1,4,"TCD","P",null,2],["Witch It",1,16,"DP","P",null,7],
+["Codenames",4,null,"DP","G",null,0]
 ];
 
 export const GAMELIST = RAW.map(([name,min,max,themes,status,access,size])=>({
@@ -81,7 +83,7 @@ export const SEARCH_TERM={
  "Jackbox Party Pack (Trivia Murder Party)":"Jackbox Party Pack","We Are So F*cked: The Last Critter Crew (Demo)":"We Are So F*cked",
  "wildwoods":"Wild Woods","CURE – A Hospital Simulator":"CURE A Hospital Simulator"
 };
-export const CUSTOM_URL={"Fog of Life":"https://vlowoid.itch.io/"};
+export const CUSTOM_URL={"Fog of Life":"https://vlowoid.itch.io/","Codenames":"https://codenames.game/"};
 export function gameUrl(g){
   if(CUSTOM_URL[g.name]) return CUSTOM_URL[g.name];
   if(STEAM_IDS[g.name]) return `https://store.steampowered.com/app/${STEAM_IDS[g.name]}/`;
