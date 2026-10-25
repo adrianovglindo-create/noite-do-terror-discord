@@ -61,7 +61,9 @@ export const RAW = [
 ["We Gotta Go",1,4,"TCD","P",null,4],["Wheelchair Wizards",2,8,"DP","G",null,0.2],["Whisper Mountain Outbreak",1,4,"TC","P",null,1],
 ["wildwoods",1,4,"C","V",null,1],["WISE GUYS",2,12,"DP","P",null,2.5],["YAPYAP",1,6,"TCD","P",null,2],
 ["PILGRIM",1,4,"TCD","P",null,2],["Witch It",1,16,"DP","P",null,7],
-["Codenames",4,null,"DP","G",null,0]
+["Codenames",4,null,"DP","G",null,0],
+["Fart Together Demo",2,4,"CD","G",null,4],["UNO",1,4,"DP","P",null,3],
+["GeoGuessr",2,null,"DP","P",null,0],["Gartic Phone",4,30,"D","G",null,0]
 ];
 
 export const GAMELIST = RAW.map(([name,min,max,themes,status,access,size])=>({
@@ -71,7 +73,7 @@ export const BYNAME = Object.fromEntries(GAMELIST.map(g=>[g.name,g]));
 
 // Páginas confirmadas na Steam; os demais abrem a busca da Steam pelo nome
 export const STEAM_IDS={
- "PILGRIM":2965660,"Witch It":559650,
+ "PILGRIM":2965660,"Witch It":559650,"Fart Together Demo":5208630,"UNO":470220,
  "Scam Line":2794590,"Capote":3345950,"WE ARE SO COOKED (Mergen Studios)":3754350,"Wheelchair Wizards":3832630,
  "Salvation Denied":4193590,"Deathground":1200770,"CUT THAT WIRE":3498650,"VHOLUME":4131730,"Funnel Runners":3712080,
  "Last Man Sitting":774291,"Meowgic":4252290,"Thick As Thieves":3341000,"WE ARE SO DEAD":4796830,"Shift At Midnight":3722330,
@@ -83,7 +85,7 @@ export const SEARCH_TERM={
  "Jackbox Party Pack (Trivia Murder Party)":"Jackbox Party Pack","We Are So F*cked: The Last Critter Crew (Demo)":"We Are So F*cked",
  "wildwoods":"Wild Woods","CURE – A Hospital Simulator":"CURE A Hospital Simulator"
 };
-export const CUSTOM_URL={"Fog of Life":"https://vlowoid.itch.io/","Codenames":"https://codenames.game/"};
+export const CUSTOM_URL={"Fog of Life":"https://vlowoid.itch.io/","Codenames":"https://codenames.game/","GeoGuessr":"https://www.geoguessr.com/pt","Gartic Phone":"https://garticphone.com/pt"};
 export function gameUrl(g){
   if(CUSTOM_URL[g.name]) return CUSTOM_URL[g.name];
   if(STEAM_IDS[g.name]) return `https://store.steampowered.com/app/${STEAM_IDS[g.name]}/`;
