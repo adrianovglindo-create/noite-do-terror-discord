@@ -63,7 +63,7 @@ export const RAW = [
 ["PILGRIM",1,4,"TCD","P",null,2],["Witch It",1,16,"DP","P",null,7],
 ["Codenames",4,null,"DP","G",null,0],
 ["Fart Together Demo",2,4,"CD","G",null,4],["UNO",1,4,"DP","P",null,3],
-["GeoGuessr",2,null,"DP","P",null,0],["Gartic Phone",4,30,"D","G",null,0]
+["GeoGuessr",2,null,"DP","P",null,0],["Gartic Phone",4,30,"D","G",null,0],["StopotS",2,null,"DP","G",null,0]
 ];
 
 export const GAMELIST = RAW.map(([name,min,max,themes,status,access,size])=>({
@@ -85,7 +85,7 @@ export const SEARCH_TERM={
  "Jackbox Party Pack (Trivia Murder Party)":"Jackbox Party Pack","We Are So F*cked: The Last Critter Crew (Demo)":"We Are So F*cked",
  "wildwoods":"Wild Woods","CURE – A Hospital Simulator":"CURE A Hospital Simulator"
 };
-export const CUSTOM_URL={"Fog of Life":"https://vlowoid.itch.io/","Codenames":"https://codenames.game/","GeoGuessr":"https://www.geoguessr.com/pt","Gartic Phone":"https://garticphone.com/pt"};
+export const CUSTOM_URL={"Fog of Life":"https://vlowoid.itch.io/","Codenames":"https://codenames.game/","GeoGuessr":"https://www.geoguessr.com/pt","Gartic Phone":"https://garticphone.com/pt","StopotS":"https://stopots.com/pt"};
 export function gameUrl(g){
   if(CUSTOM_URL[g.name]) return CUSTOM_URL[g.name];
   if(STEAM_IDS[g.name]) return `https://store.steampowered.com/app/${STEAM_IDS[g.name]}/`;
