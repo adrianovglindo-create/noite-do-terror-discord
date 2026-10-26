@@ -1,12 +1,14 @@
 // "Cartas de cada um": todos veem quantas cartas cada um tem e onde cada carta
 // de banir/salvar foi colocada. Cada um mexe só nas próprias; o ADM mexe em todas.
-import { useEvento, canEdit, putCard, removeCard, setColor, removePlayer, SKIPS } from "../state/evento.js";
+import { useEvento, canEdit, putCard, removeCard, setColor, removePlayer, resetSkips, SKIPS } from "../state/evento.js";
+import { useConfirm } from "./ConfirmDialog.jsx";
 import { ColorSwatches, JokerCard, PlayerTag } from "./common.jsx";
 
 const SLOTS = [["ban", "Banir"], ["save", "Salvar (chance 2×)"]];
 const report = p => Promise.resolve(p).catch(e => { console.error(e); alert(e.message); });
 
 export default function PlayersCards() {
+  const [dialog, ask] = useConfirm();
   const ev = useEvento();
   if (!ev.players.length) return (
     <div className="box">
@@ -22,6 +24,7 @@ export default function PlayersCards() {
 
   return (
     <div className="box">
+      {dialog}
       <h3>Cartas de cada um</h3>
       {ordered.map(p => {
         const ed = canEdit(ev, p.id), left = SKIPS - (p.skipsUsed || 0);
@@ -39,6 +42,11 @@ export default function PlayersCards() {
               <div className="cardGroup" title={`Cartas de pular restantes: ${left}`}>
                 {Array.from({ length: SKIPS }, (_, i) => <JokerCard key={i} type="skip" used={i >= left} />)}
                 <span className="lbl" style={{ fontSize: ".8rem", color: "var(--muted)" }}>Pular: {left}/{SKIPS}</span>
+                {ev.isAdmin && left < SKIPS && <button type="button" className="linkBtn" onClick={async () => {
+                  const ok = await ask({ title: `Devolver os pulos de ${p.name}?`, message: <p>{p.name} usou {SKIPS - left} de {SKIPS} cartas de pular e vai voltar a ter {SKIPS}.</p>,
+                    actions: [{ label: "Devolver", value: true }] });
+                  if (ok) report(resetSkips(p.id));
+                }}>devolver pulos</button>}
               </div>
               {SLOTS.map(([type, label]) => (
                 <div key={type} className="cardGroup">

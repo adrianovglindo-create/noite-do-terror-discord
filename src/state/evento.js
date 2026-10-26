@@ -157,6 +157,23 @@ export async function undoSkip(hid) {
   await Store.update(`history/${hid}`, { undone: true });
 }
 
+// ---- ADM: histórico e cartas de pular ----
+export async function deleteHistoryItem(hid, giveBackCard = false) {
+  const h = (state.data.history || {})[hid]; if (!state.isAdmin || !h) return;
+  if (giveBackCard && h.type === "pulado" && !h.undone && h.by) await Store.tx(`players/${h.by}/skipsUsed`, c => Math.max(0, (c || 0) - 1));
+  await Store.set(`history/${hid}`, null);
+}
+export async function clearHistory() {
+  if (!state.isAdmin) return;
+  for (const hid of Object.keys(state.data.history || {})) await Store.set(`history/${hid}`, null);
+}
+// devolve as cartas de pular de um participante (ou de todos, sem pid)
+export async function resetSkips(pid = null) {
+  if (!state.isAdmin) return;
+  const ids = pid ? [pid] : Object.keys(state.data.players || {});
+  for (const id of ids) if ((state.data.players || {})[id]) await Store.update(`players/${id}`, { skipsUsed: 0 });
+}
+
 export async function resetAll() {
   if (!state.isAdmin) return;
   for (const pid of Object.keys(state.data.players || {})) await Store.update(`players/${pid}`, { skipsUsed: 0, ban: null, save: null });

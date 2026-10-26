@@ -187,7 +187,11 @@ footer p{max-width:72ch}
 .skipBtn{font:inherit;font-size:.9rem;font-weight:700;padding:7px 12px;border-radius:999px;border:2px solid var(--ink);background:var(--bg);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .skipBtn:disabled{opacity:.4;cursor:not-allowed}
 .hist{max-width:400px;margin:22px auto 0}
-.hist h4{font-family:"Fraunces",Georgia,serif;margin:0 0 6px;font-size:1.05rem}
+.hist h4{font-family:"Fraunces",Georgia,serif;margin:0;font-size:1.05rem}
+.histHead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin:0 0 6px}
+.histAdm,.histItemAdm{display:inline-flex;flex-wrap:wrap;gap:2px 10px}
+.histItemAdm{margin-left:auto}
+.linkBtn.danger{color:var(--t-terror)}
 .hist ul{list-style:none;margin:0;padding:0;font-size:.88rem}
 .hist li{padding:6px 0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
 .hist li.undone{opacity:.5;text-decoration:line-through}
@@ -264,3 +268,13 @@ footer p{max-width:72ch}
 .soundHint{display:inline-flex;align-items:center;gap:6px;font:inherit;font-weight:700;font-size:.9rem;margin:-6px 0 16px;padding:7px 14px;border-radius:999px;border:2px dashed var(--pumpkin);background:transparent;color:var(--ink);cursor:pointer;animation:hintPulse 1.6s ease-in-out infinite}
 @keyframes hintPulse{50%{border-color:transparent}}
 @media (prefers-reduced-motion:reduce){.soundHint{animation:none}}
+
+/* ---- Janela de confirmação ---- */
+.cdlgBack{position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,4,14,.6);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:partyIn .15s ease-out both}
+.cdlg{width:min(460px,100%);background:var(--bg);color:var(--ink);border:2px solid var(--ink);border-radius:18px;padding:22px 22px 18px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.cdlg h3{font-family:"Fraunces",Georgia,serif;font-size:1.35rem;margin:0 0 10px}
+.cdlgMsg{font-size:.95rem;color:var(--ink)}
+.cdlgMsg p{margin:0 0 10px}
+.cdlgList{margin:0 0 10px;padding-left:18px}
+.cdlgBtns{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:16px}
+.btn.danger{background:var(--t-terror);color:#fff}
