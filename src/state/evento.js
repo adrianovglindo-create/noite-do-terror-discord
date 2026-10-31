@@ -2,7 +2,8 @@
 //
 // data = { config: {...ver lib/pool.js}, spin: {seq, winner, state, by, ts},
 //          admin: {pin}, players: {id: {name, color, pin, skipsUsed, ban, save, ts}},
-//          history: {id: {game, type: "pulado"|"escolhido", by, ts, undone}} }
+//          history: {id: {game, type: "pulado"|"escolhido", by, ts, undone}},
+//          timers: {playerId: {total: ms acumulados, since: início da contagem atual ou null}} }
 //
 // Os componentes leem com useEvento() e chamam as funções exportadas daqui.
 import { useSyncExternalStore, useMemo } from "react";
@@ -172,6 +173,31 @@ export async function resetSkips(pid = null) {
   if (!state.isAdmin) return;
   const ids = pid ? [pid] : Object.keys(state.data.players || {});
   for (const id of ids) if ((state.data.players || {})[id]) await Store.update(`players/${id}`, { skipsUsed: 0 });
+}
+
+// ---- ADM: cronômetro de cada participante (aba Tempo) ----
+// total = tempo já somado; since = quando a contagem atual começou (null = parado).
+export const timerNow = (t, now = Date.now()) => t ? (t.total || 0) + (t.since ? Math.max(0, now - t.since) : 0) : 0;
+const timerTx = (pid, fn) => Store.tx(`timers/${pid}`, cur => fn({ total: 0, since: null, ...(cur || {}) }));
+export async function timerStart(pid) {
+  if (!state.isAdmin) return;
+  await timerTx(pid, t => t.since ? undefined : { ...t, since: Date.now() });
+}
+export async function timerStop(pid) {
+  if (!state.isAdmin) return;
+  await timerTx(pid, t => t.since ? { total: timerNow(t), since: null } : undefined);
+}
+export async function timerAdjust(pid, deltaMs) {
+  if (!state.isAdmin || !deltaMs) return;
+  await timerTx(pid, t => ({ ...t, total: Math.max(0, (t.total || 0) + deltaMs) }));
+}
+export async function timerReset(pid) {
+  if (!state.isAdmin) return;
+  await Store.set(`timers/${pid}`, null);
+}
+export async function timerStopAll() {
+  if (!state.isAdmin) return;
+  for (const [pid, t] of Object.entries(state.data.timers || {})) if (t && t.since) await timerStop(pid);
 }
 
 export async function resetAll() {

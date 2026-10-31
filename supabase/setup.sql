@@ -16,7 +16,7 @@
 
 create table if not exists public.estado (
   key text primary key
-    check (key ~ '^(config|spin|admin|players/[a-z0-9]{4,40}|history/[a-z0-9]{4,40})$'),
+    check (key ~ '^(config|spin|admin|timers|players/[a-z0-9]{4,40}|history/[a-z0-9]{4,40})$'),
   value jsonb,
   ver integer not null default 1 check (ver >= 1),
   updated_at timestamptz not null default now(),
@@ -46,3 +46,8 @@ begin
     alter publication supabase_realtime add table public.estado;
   end if;
 end $$;
+
+-- Para bancos criados antes da aba Tempo: libera a linha "timers" (pode rodar de novo sem problema).
+alter table public.estado drop constraint if exists estado_key_check;
+alter table public.estado add constraint estado_key_check
+  check (key ~ '^(config|spin|admin|timers|players/[a-z0-9]{4,40}|history/[a-z0-9]{4,40})$');

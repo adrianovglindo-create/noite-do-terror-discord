@@ -278,3 +278,32 @@ footer p{max-width:72ch}
 .cdlgList{margin:0 0 10px;padding-left:18px}
 .cdlgBtns{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:16px}
 .btn.danger{background:var(--t-terror);color:#fff}
+
+/* ---- Aba Tempo (ADM) ---- */
+.timWrap{max-width:900px;margin:0 auto;padding:18px 20px 60px}
+.tTop{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.tStatus{display:flex;flex-wrap:wrap;gap:6px 22px;padding:10px 14px;border-radius:12px;background:var(--panel);font-size:.95rem;margin-bottom:10px}
+.tStatus a{color:inherit}
+.tWarn{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:#F6D365;color:#2A1B2E;font-weight:700;font-size:.92rem}
+.tList{list-style:none;margin:0;padding:0;border-top:2px solid var(--ink)}
+.tList li{display:grid;grid-template-columns:minmax(150px,1fr) auto auto;grid-template-areas:"who clock btn" "more more more";gap:6px 16px;align-items:center;padding:12px 6px;border-bottom:1px solid var(--line)}
+.tList li.on{background:color-mix(in srgb,var(--t-coop) 12%,transparent);box-shadow:inset 4px 0 0 var(--t-coop)}
+.tWho{grid-area:who;display:flex;align-items:center;gap:8px;min-width:0}
+.tWho strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tRank{font-size:.85rem;font-weight:700;color:var(--muted)}
+.tClock{grid-area:clock;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;font-size:1.5rem;font-weight:700;letter-spacing:.02em}
+.tClock.sm{font-size:1rem;margin-left:auto}
+.tList li.on .tClock{color:var(--t-coop)}
+.tList .btn{grid-area:btn;min-width:116px}
+.tMore{grid-area:more;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:.88rem}
+.tAdj{display:inline-flex;align-items:center;gap:4px}
+.tAdj input{width:72px;font:inherit;padding:4px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.tRanking{margin-top:24px;border:2px solid var(--ink);border-radius:14px;padding:12px 16px;background:var(--panel)}
+.tRanking h4{font-family:"Fraunces",Georgia,serif;margin:0 0 8px;font-size:1.15rem}
+.tRanking ol{list-style:none;margin:0;padding:0}
+.tRanking li{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--line)}
+.tRanking li:last-child{border-bottom:0}
+@media (max-width:560px){
+  .tList li{grid-template-columns:1fr auto;grid-template-areas:"who who" "clock btn" "more more"}
+  .tClock{font-size:1.3rem}
+}
