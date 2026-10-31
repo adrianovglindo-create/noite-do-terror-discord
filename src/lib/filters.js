@@ -1,4 +1,4 @@
-// Filtros do catálogo e da roleta (jogadores, tema, tamanho) e textos de exibição.
+// Filtros do catálogo e da roleta (jogadores, tema, tamanho, preço) e textos de exibição.
 
 export const normalize = t => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
@@ -27,10 +27,16 @@ export const SIZE_OPTS = [
   { id: "l", label: "Mais de 15 GB", test: g => g.size != null && g.size > 15 },
   { id: "na", label: "A confirmar", test: g => g.size == null },
 ];
+export const STATUS_OPTS = [
+  { id: "G", label: "Grátis", color: "var(--s-free)" },
+  { id: "P", label: "Hydra (pago)", color: "var(--s-paid)" },
+  { id: "V", label: "A confirmar", color: "var(--s-check)" },
+].map(o => ({ ...o, test: g => g.status === o.id }));
 export const FACETS = [
   { key: "players", legend: "Jogadores", opts: PLAYER_OPTS, chip: o => o.label },
   { key: "themes", legend: "Tema", opts: THEME_OPTS, chip: o => o.label },
   { key: "sizes", legend: "Tamanho", opts: SIZE_OPTS, chip: o => "Tamanho: " + o.label },
+  { key: "status", legend: "Preço", opts: STATUS_OPTS, chip: o => "Preço: " + o.label },
 ];
 
 export const THEME_LABEL = { T: "Terror", D: "Diversão", P: "Competitivo", C: "Cooperativo" };
@@ -71,6 +77,7 @@ export const FACET_TEST = {
   players: (g, sel) => passFacet(PLAYER_OPTS, g, sel),
   themes: (g, sel) => passFacet(THEME_OPTS, g, sel),
   sizes: (g, sel) => passFacet(SIZE_OPTS, g, sel),
+  status: (g, sel) => passFacet(STATUS_OPTS, g, sel),
 };
 export const passFacets = (g, f) => Object.keys(FACET_TEST).every(k => FACET_TEST[k](g, f[k]));
 

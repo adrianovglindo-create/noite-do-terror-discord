@@ -1,10 +1,10 @@
 // Grupo de jogos da roleta a partir da configuração do ADM (linha "config" no banco).
 //
-// config = { filters: {players: [], themes: [], sizes: []}, mode: "equal"|"custom",
+// config = { filters: {players: [], themes: [], sizes: [], status: []}, mode: "equal"|"custom",
 //            banned: [jogo], off: [jogo], pct: {jogo: número} }
 // Todos os aparelhos calculam o mesmo grupo a partir dela.
 import { GAMELIST } from "../data/games.js";
-import { passFacets } from "./filters.js";
+import { FACETS, passFacets } from "./filters.js";
 import { buildPool, weights } from "./wheel.js";
 
 export function normalizeConfig(c) {
@@ -12,7 +12,7 @@ export function normalizeConfig(c) {
   const f = c.filters || {};
   const arr = v => Array.isArray(v) ? v : [];
   return {
-    filters: { players: arr(f.players), themes: arr(f.themes), sizes: arr(f.sizes) },
+    filters: Object.fromEntries(FACETS.map(({ key }) => [key, arr(f[key])])),
     mode: c.mode === "custom" ? "custom" : "equal",
     banned: arr(c.banned),
     off: arr(c.off),
@@ -20,7 +20,7 @@ export function normalizeConfig(c) {
   };
 }
 
-const asSets = filters => ({ players: new Set(filters.players), themes: new Set(filters.themes), sizes: new Set(filters.sizes) });
+const asSets = filters => Object.fromEntries(FACETS.map(({ key }) => [key, new Set(filters[key] || [])]));
 const byKey = (a, b) => a.key.localeCompare(b.key);
 
 // Jogos que passam nos filtros do ADM (inclui banidos e desmarcados, para a tabela)

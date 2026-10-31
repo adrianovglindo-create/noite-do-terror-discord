@@ -4,7 +4,7 @@ import { GAMELIST } from "../data/games.js";
 import { FACETS, THEME_LABEL, STATUS_LABEL, passSearch, passFacets, facetCounts, playersText, sizeText } from "../lib/filters.js";
 import { FacetGroup, FilterChips, GameLink } from "./common.jsx";
 
-const EMPTY = { players: new Set(), themes: new Set(), sizes: new Set() };
+const EMPTY = Object.fromEntries(FACETS.map(f => [f.key, new Set()]));
 const STATUS_ORDER = { G: 0, P: 1, V: 2 };
 
 export default function Catalog() {
