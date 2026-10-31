@@ -1,6 +1,6 @@
 // Contas: cada participante cria a sua (nome, cor e PIN de 4 números) e entra
 // de novo em outro aparelho com o PIN. Embaixo fica a entrada do ADM (o PIN do
-// ADM é definido uma única vez, no primeiro acesso).
+// ADM é conferida no servidor; ela é definida no SQL Editor do Supabase).
 import { useState } from "react";
 import { useEvento, createPlayer, login, logout, adminLogin, adminLogout } from "../state/evento.js";
 import { ColorSwatches, PlayerTag } from "./common.jsx";
@@ -19,7 +19,6 @@ export default function AccountBox() {
   const [admPin, setAdmPin] = useState(""), [admMsg, setAdmMsg] = useState("");
 
   const me = ev.players.find(p => p.id === ev.me);
-  const hasAdm = !!(ev.data.admin && ev.data.admin.pin);
   const selected = loginId || (ev.players[0] && ev.players[0].id) || "";
 
   const add = async () => { if (await run(() => createPlayer(name, pin.trim(), color), setMsg)) { setName(""); setPin(""); } };
@@ -73,10 +72,10 @@ export default function AccountBox() {
       <p className="facet-note" style={{ margin: "-8px 0 18px" }}>🛠 Você está no modo ADM. <button className="linkBtn" onClick={adminLogout}>sair do modo ADM</button></p>
     ) : (
       <details style={{ margin: "-8px 0 18px" }}>
-        <summary className="facet-note" style={{ cursor: "pointer" }}>{hasAdm ? "Sou o ADM" : "Definir PIN do ADM (primeiro acesso)"}</summary>
+        <summary className="facet-note" style={{ cursor: "pointer" }}>Sou o ADM</summary>
         <div className="row">
-          <input type="password" inputMode="numeric" maxLength={8} placeholder="PIN do ADM" aria-label="PIN do ADM" style={{ width: 150 }} value={admPin} onChange={e => setAdmPin(e.target.value)} onKeyUp={onEnter(enterAdm)} />
-          <button className="ghostBtn" onClick={enterAdm}>{hasAdm ? "Entrar" : "Definir"}</button>
+          <input type="password" autoComplete="current-password" placeholder="Senha do ADM" aria-label="Senha do ADM" style={{ width: 190 }} value={admPin} onChange={e => setAdmPin(e.target.value)} onKeyUp={onEnter(enterAdm)} />
+          <button className="ghostBtn" onClick={enterAdm}>Entrar</button>
         </div>
         <p className="msg">{admMsg}</p>
       </details>

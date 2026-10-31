@@ -131,3 +131,12 @@ npm run build     # gera dist/ (rode sempre antes de entregar)
 - [ ] Teste real com 2 ou 3 pessoas antes do evento.
 - [ ] Abrir o projeto do Supabase alguns dias antes e no dia (projeto gratuito pausa após ~7 dias sem uso).
 - [ ] Trocar os jokers genéricos pelo design próprio das cartas quando o dono enviar.
+
+## Segurança do ADM (no servidor)
+
+- A senha do ADM fica só no Supabase, na tabela privada `admin_secret` (bcrypt). Ninguém de fora lê essa tabela.
+- Definir ou trocar a senha: no **SQL Editor** do Supabase, rode `select public.admin_definir_senha('sua-senha');` (mínimo 8 caracteres).
+- Participantes (chave pública/anon) **não conseguem gravar** nas linhas `config`, `admin` e `timers`: o banco recusa (RLS).
+- O ADM grava tudo pela função `admin_write`, que confere a senha a cada gravação. Há limite de 15 senhas erradas por minuto.
+- O site só entra no modo ADM depois que o servidor confirma a senha (`admin_ok`). Trocar dados no navegador não dá acesso.
+- Continua aberto aos participantes, de propósito: as próprias contas, cartas, o "pular" (linha `spin`) e o histórico.

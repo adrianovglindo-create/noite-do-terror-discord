@@ -51,3 +51,74 @@ end $$;
 alter table public.estado drop constraint if exists estado_key_check;
 alter table public.estado add constraint estado_key_check
   check (key ~ '^(config|spin|admin|timers|players/[a-z0-9]{4,40}|history/[a-z0-9]{4,40})$');
+
+-- ============================================================
+-- Segurança do ADM (senha no servidor). Participantes (anon) não
+-- gravam em config, admin e timers; o ADM grava pela função
+-- admin_write, que confere a senha. Para definir/trocar a senha,
+-- rode no SQL Editor:   select public.admin_definir_senha('sua-senha');
+-- ============================================================
+create extension if not exists pgcrypto with schema extensions;
+create table if not exists public.admin_secret (
+  id int primary key default 1 check (id = 1),
+  pass_hash text not null,
+  updated_at timestamptz not null default now()
+);
+create table if not exists public.admin_tentativas (ts timestamptz not null default now());
+alter table public.admin_secret enable row level security;
+alter table public.admin_tentativas enable row level security;
+revoke all on public.admin_secret from anon, authenticated;
+revoke all on public.admin_tentativas from anon, authenticated;
+
+create or replace function public.admin_definir_senha(p_nova text) returns text
+language plpgsql security definer set search_path = '' as $$
+begin
+  if p_nova is null or length(p_nova) < 8 then raise exception 'A senha precisa ter pelo menos 8 caracteres.'; end if;
+  insert into public.admin_secret(id, pass_hash) values (1, extensions.crypt(p_nova, extensions.gen_salt('bf', 10)))
+  on conflict (id) do update set pass_hash = excluded.pass_hash, updated_at = now();
+  delete from public.admin_tentativas;
+  return 'Senha do ADM definida.';
+end $$;
+revoke all on function public.admin_definir_senha(text) from public, anon, authenticated;
+
+create or replace function public.admin_ok(p_pass text) returns boolean
+language plpgsql security definer set search_path = '' as $$
+declare h text; falhas int;
+begin
+  select count(*) into falhas from public.admin_tentativas where ts > now() - interval '1 minute';
+  if falhas >= 15 then raise exception 'Muitas tentativas erradas. Espere um minuto.'; end if;
+  select pass_hash into h from public.admin_secret where id = 1;
+  if h is not null and p_pass is not null and extensions.crypt(p_pass, h) = h then return true; end if;
+  insert into public.admin_tentativas default values;
+  delete from public.admin_tentativas where ts < now() - interval '1 hour';
+  return false;
+end $$;
+revoke all on function public.admin_ok(text) from public;
+grant execute on function public.admin_ok(text) to anon, authenticated;
+
+create or replace function public.admin_write(p_pass text, p_key text, p_value jsonb, p_ver int) returns int
+language plpgsql security definer set search_path = '' as $$
+declare n int;
+begin
+  if not public.admin_ok(p_pass) then raise exception 'Senha do ADM incorreta.' using errcode = '42501'; end if;
+  if coalesce(p_ver, 0) = 0 then
+    if p_value is null then return 0; end if;
+    insert into public.estado(key, value, ver) values (p_key, p_value, 1) on conflict (key) do nothing;
+    get diagnostics n = row_count; return case when n = 1 then 1 else -1 end;
+  end if;
+  if p_value is null then
+    delete from public.estado where key = p_key and ver = p_ver;
+    get diagnostics n = row_count; return case when n = 1 then 0 else -1 end;
+  end if;
+  update public.estado set value = p_value, ver = p_ver + 1, updated_at = now() where key = p_key and ver = p_ver;
+  get diagnostics n = row_count; return case when n = 1 then p_ver + 1 else -1 end;
+end $$;
+revoke all on function public.admin_write(text, text, jsonb, int) from public;
+grant execute on function public.admin_write(text, text, jsonb, int) to anon, authenticated;
+
+drop policy if exists "insercao" on public.estado;
+drop policy if exists "edicao" on public.estado;
+drop policy if exists "remocao" on public.estado;
+create policy "insercao" on public.estado for insert to anon with check (key !~ '^(config|admin|timers)$');
+create policy "edicao" on public.estado for update to anon using (key !~ '^(config|admin|timers)$') with check (key !~ '^(config|admin|timers)$');
+create policy "remocao" on public.estado for delete to anon using (key !~ '^(config|admin|timers)$');

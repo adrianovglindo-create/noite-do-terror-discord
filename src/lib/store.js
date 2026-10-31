@@ -12,7 +12,11 @@ export const TABLE = "estado";
 const MAX_TRIES = 6;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-export function createSupabaseStore(client, { onChange, onStatus }) {
+// Linhas que só o ADM grava. O banco (RLS) recusa escrita direta nelas; o ADM
+// grava pela função admin_write, que confere a senha no servidor.
+export const ADMIN_ONLY = /^(config|admin|timers)$/;
+
+export function createSupabaseStore(client, { onChange, onStatus, adminPass = () => null }) {
   const rows = new Map(); // key -> { value, ver } (o que o banco confirmou)
   // Escritas otimistas ainda em andamento: aparecem na tela na hora e são
   // reaplicadas por cima do valor confirmado até o banco responder.
@@ -97,6 +101,16 @@ export function createSupabaseStore(client, { onChange, onStatus }) {
       const r = computeNext(row ? row.value : null, sub, fn);
       if (!r) return false; // fn desistiu (ex.: alguém já pulou esse giro)
       const next = r.next;
+
+      const pass = adminPass();
+      if (pass) { // ADM: tudo passa pelo servidor, que confere a senha
+        const { data: nv, error: e } = await client.rpc("admin_write", { p_pass: pass, p_key: key, p_value: next, p_ver: row ? row.ver : 0 });
+        if (e) throw new Error(e.message);
+        if (nv === -1) continue; // outra pessoa gravou no meio
+        if (next == null || nv === 0) rows.delete(key); else applyRow(key, next, nv);
+        emit(); return true;
+      }
+      if (ADMIN_ONLY.test(key)) throw new Error("Só o ADM pode mudar isso.");
 
       if (!row) {
         if (next == null) return true;

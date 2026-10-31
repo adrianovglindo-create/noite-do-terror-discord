@@ -22,7 +22,9 @@ export const COLORS = [["azul", "Azul", "#3B82F6"], ["verde", "Verde", "#22C55E"
 export const colorHex = id => (COLORS.find(c => c[0] === id) || COLORS[0])[2];
 
 // "me" e "isAdmin" só lembram quem está usando este aparelho
-const LS_ME = "nt-me", LS_ADM = "nt-adm";
+const LS_ME = "nt-me", LS_ADM = "nt-adm-pass";
+let adminPass = LS.get(LS_ADM) || null; // senha do ADM neste aparelho (o servidor confere a cada gravação)
+let client = null;
 
 /* ---------- store externo (useSyncExternalStore) ---------- */
 let state = {
@@ -31,7 +33,7 @@ let state = {
   connected: false,
   loaded: false,
   me: LS.get(LS_ME),
-  isAdmin: LS.get(LS_ADM) === "1",
+  isAdmin: false, // só vira true depois que o servidor confirma a senha
 };
 const listeners = new Set();
 const setState = patch => { state = { ...state, ...patch }; listeners.forEach(l => l()); };
@@ -59,10 +61,15 @@ let Store = null;
 export async function initSync() {
   if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.key) { setState({ status: "sem-config", loaded: true }); return; }
   try {
-    const client = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key, { auth: { persistSession: false } });
+    client = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key, { auth: { persistSession: false } });
     Store = createSupabaseStore(client, {
       onChange: data => setState({ data, loaded: true }),
       onStatus: ok => setState({ connected: ok }),
+      adminPass: () => (state.isAdmin ? adminPass : null),
+    });
+    // senha guardada neste aparelho: confere no servidor antes de liberar o modo ADM
+    if (adminPass) client.rpc("admin_ok", { p_pass: adminPass }).then(({ data }) => {
+      if (data === true) setState({ isAdmin: true }); else { adminPass = null; LS.del(LS_ADM); }
     });
     setState({ status: "online" });
     await Store.start();
@@ -93,17 +100,17 @@ export async function login(pid, pin) {
 }
 export function logout() { LS.del(LS_ME); setState({ me: null }); }
 
-export async function adminLogin(pin) {
-  if (pin.length < 4) return "Use pelo menos 4 números.";
-  const hsh = await sha("adm|" + pin);
-  const cur = state.data.admin && state.data.admin.pin;
-  if (!cur) {
-    const ok = await Store.tx("admin/pin", c => c ? undefined : hsh); // só define se ninguém definiu
-    if (!ok) return "Alguém já definiu o PIN do ADM.";
-  } else if (cur !== hsh) return "PIN incorreto.";
-  LS.set(LS_ADM, "1"); setState({ isAdmin: true }); return null;
+// A senha do ADM fica só no servidor (tabela privada). Ela é definida pelo SQL Editor
+// do Supabase:  select public.admin_definir_senha('sua-senha');
+export async function adminLogin(pass) {
+  if (!client) return "Sem conexão com o banco.";
+  if (!pass) return "Digite a senha do ADM.";
+  const { data, error } = await client.rpc("admin_ok", { p_pass: pass });
+  if (error) return error.message;
+  if (data !== true) return "Senha incorreta.";
+  adminPass = pass; LS.set(LS_ADM, pass); setState({ isAdmin: true }); return null;
 }
-export function adminLogout() { LS.del(LS_ADM); setState({ isAdmin: false }); }
+export function adminLogout() { adminPass = null; LS.del(LS_ADM); setState({ isAdmin: false }); }
 
 /* ---------- cartas ---------- */
 // Estas aparecem na tela na hora (otimista) e o banco confirma em seguida
