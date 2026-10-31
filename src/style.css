@@ -295,6 +295,9 @@ footer p{max-width:72ch}
 .tClock.sm{font-size:1rem;margin-left:auto}
 .tList li.on .tClock{color:var(--t-coop)}
 .tList .btn{grid-area:btn;min-width:116px}
+.tList li.view{grid-template-areas:"who clock btn"}
+.tState{grid-area:btn;min-width:100px;text-align:right;font-size:.85rem;font-weight:700;color:var(--muted)}
+.tState.on{color:var(--t-coop)}
 .tMore{grid-area:more;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:.88rem}
 .tAdj{display:inline-flex;align-items:center;gap:4px}
 .tAdj input{width:72px;font:inherit;padding:4px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
@@ -305,5 +308,6 @@ footer p{max-width:72ch}
 .tRanking li:last-child{border-bottom:0}
 @media (max-width:560px){
   .tList li{grid-template-columns:1fr auto;grid-template-areas:"who who" "clock btn" "more more"}
+  .tList li.view{grid-template-areas:"who who" "clock btn"}
   .tClock{font-size:1.3rem}
 }

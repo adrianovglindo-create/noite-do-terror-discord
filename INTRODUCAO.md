@@ -59,7 +59,7 @@ Foram definidas pelo dono do evento. Não mude sem ele pedir.
   4. Quando alguém pula, a tela do ADM gira de novo sozinha depois de 1,7 s.
   5. Quando o ADM aperta "Vai ser esse! ✅", todos veem a comemoração em tela cheia (`src/components/Celebration.jsx`): explosões, confete, abóboras voando, tela tremendo e som sintetizado (botão 🔊/🔇, lembrado em `nt-som`). Como o navegador só libera som depois de um toque na página, a aba Roleta mostra "🔊 Toque aqui para ativar o som da festa" até a pessoa tocar em algo. Ela só começa depois que a roda parou em cada tela, não aparece para quem abre a página depois e fecha sozinha em 9 s, com "Fechar", clique fora ou Esc. Com "reduzir movimento" ligado no aparelho, a festa fica mais calma.
 - Quando o ADM gira, quem estiver na aba Catálogo é levado para a aba Roleta para ver o giro.
-- Aba **⏱️ Tempo** (só aparece para o ADM, `src/components/Timers.jsx`): um cronômetro por participante, com Iniciar/Pausar, somar ou tirar minutos, zerar (com confirmação), "Pausar todos" e ranking. Mostra quantas pessoas estão contando, o último jogo escolhido na roleta e um aviso quando há menos de 3 pessoas contando (regra 1). Os tempos ficam na linha `timers` do banco (`{idDoParticipante: {total, since}}`), então recarregar a página não perde nada; o relógio usado é o do aparelho do ADM.
+- Aba **⏱️ Tempo** (`src/components/Timers.jsx`): todos veem os cronômetros e o ranking ao vivo, mas só o ADM controla: Iniciar/Pausar, somar ou tirar minutos, zerar (com confirmação), "Pausar todos" e ranking. Mostra quantas pessoas estão contando, o último jogo escolhido na roleta e um aviso quando há menos de 3 pessoas contando (regra 1). Os tempos ficam na linha `timers` do banco (`{idDoParticipante: {total, since}}`), então recarregar a página não perde nada; o relógio usado é o do aparelho do ADM.
 - Histórico (só ADM): "devolver carta" num pulo, "excluir" um registro (se for um pulo, pode excluir devolvendo a carta), "🗑 limpar histórico" e "devolver pulos de todos". No painel de cartas, o ADM também tem "devolver pulos" por participante. Tudo pede confirmação na janela de `src/components/ConfirmDialog.jsx` (`useConfirm`).
 
 ## Como funciona por dentro
@@ -99,7 +99,7 @@ Foram definidas pelo dono do evento. Não mude sem ele pedir.
 | `src/lib/pool.js` | Monta o grupo da roleta a partir da `config` do ADM |
 | `src/lib/store.js` | Leitura e escrita no Supabase + tempo real |
 | `src/state/evento.js` | Estado global (`useEvento()`) e todas as ações: criar conta, pular, girar, colocar carta… |
-| `src/components/` | Telas: `Catalog`, `Roulette`, `SpinResult`, `PlayersCards`, `AccountBox`, `AdminPanel`, `HistoryList`, `WheelSvg`, `WheelList` (lista "Na roleta agora" / "Fora da roleta", visível para todos), `Celebration` (festa do jogo escolhido), `ConfirmDialog` (janela de confirmação), `Timers` (aba Tempo do ADM), `common` |
+| `src/components/` | Telas: `Catalog`, `Roulette`, `SpinResult`, `PlayersCards`, `AccountBox`, `AdminPanel`, `HistoryList`, `WheelSvg`, `WheelList` (lista "Na roleta agora" / "Fora da roleta", visível para todos), `Celebration` (festa do jogo escolhido), `ConfirmDialog` (janela de confirmação), `Timers` (aba Tempo: todos veem, só o ADM controla), `common` |
 | `src/style.css` | Todo o visual (cores em variáveis no `:root`, tema claro e escuro) |
 | `src/config.js` | URL e chave anon do Supabase |
 | `supabase/setup.sql` | Criação da tabela, permissões e tempo real |

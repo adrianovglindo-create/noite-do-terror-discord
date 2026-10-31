@@ -1,4 +1,5 @@
-// Aba "Tempo" (só ADM): um cronômetro por participante para a disputa de horas.
+// Aba "Tempo": um cronômetro por participante para a disputa de horas.
+// Todos veem os tempos e o ranking; só o ADM inicia, pausa, soma, tira e zera.
 // Os tempos ficam no banco (linha "timers"), então recarregar a página não perde nada.
 import { useEffect, useState } from "react";
 import { useEvento, timerNow, timerStart, timerStop, timerAdjust, timerReset, timerStopAll } from "../state/evento.js";
@@ -38,11 +39,10 @@ export default function Timers() {
     return () => clearInterval(t);
   }, [running.length]);
 
-  if (!ev.isAdmin) return <p className="facet-note">Esta aba é só do ADM.</p>;
-
   const totals = ev.players.map(p => ({ p, ms: timerNow(timers[p.id], now) }));
   const rank = [...totals].filter(x => x.ms > 0).sort((a, b) => b.ms - a.ms);
   const pos = id => { const i = rank.findIndex(x => x.p.id === id); return i < 0 ? null : i; };
+  const adm = ev.isAdmin;
   const s = ev.data.spin;
   const current = s && s.state === "chosen" ? s.winner : null;
 
@@ -62,9 +62,11 @@ export default function Timers() {
       <div className="tTop">
         <div>
           <p className="countHead" style={{ margin: 0 }}>Tempo de jogo</p>
-          <p className="facet-note" style={{ margin: "4px 0 0" }}>Só você (ADM) vê esta aba. Os tempos ficam salvos no banco, mesmo se a página recarregar.</p>
+          <p className="facet-note" style={{ margin: "4px 0 0" }}>{adm
+            ? "Só você (ADM) controla os cronômetros; os participantes só acompanham. Os tempos ficam salvos no banco, mesmo se a página recarregar."
+            : "Quem acumular mais horas jogadas leva R$100. Só o ADM liga e pausa os cronômetros; aqui você acompanha ao vivo."}</p>
         </div>
-        {running.length > 0 && <button type="button" className="ghostBtn" onClick={askStopAll}>⏸ Pausar todos</button>}
+        {adm && running.length > 0 && <button type="button" className="ghostBtn" onClick={askStopAll}>⏸ Pausar todos</button>}
       </div>
 
       <div className="tStatus">
@@ -80,14 +82,16 @@ export default function Timers() {
         {ev.players.map(p => {
           const t = timers[p.id], on = !!(t && t.since), ms = timerNow(t, now), i = pos(p.id);
           return (
-            <li key={p.id} className={on ? "on" : ""}>
-              <span className="tWho"><PlayerTag player={p} /><strong>{p.name}</strong>{i != null && <span className="tRank" title={`${i + 1}º lugar`}>{MEDAL[i] || `${i + 1}º`}</span>}</span>
+            <li key={p.id} className={(on ? "on" : "") + (adm ? "" : " view")}>
+              <span className="tWho"><PlayerTag player={p} /><strong>{p.name}</strong>{p.id === ev.me && <span className="youTag">você</span>}{i != null && <span className="tRank" title={`${i + 1}º lugar`}>{MEDAL[i] || `${i + 1}º`}</span>}</span>
               <span className="tClock" aria-live="off">{fmt(ms)}</span>
-              <button type="button" className={on ? "btn danger" : "btn"} onClick={() => report(on ? timerStop(p.id) : timerStart(p.id))}>{on ? "⏸ Pausar" : "▶ Iniciar"}</button>
-              <span className="tMore">
+              {adm
+                ? <button type="button" className={on ? "btn danger" : "btn"} onClick={() => report(on ? timerStop(p.id) : timerStart(p.id))}>{on ? "⏸ Pausar" : "▶ Iniciar"}</button>
+                : <span className={"tState" + (on ? " on" : "")}>{on ? "● contando" : "pausado"}</span>}
+              {adm && <span className="tMore">
                 <AdjustBox pid={p.id} />
                 {ms > 0 && <button type="button" className="linkBtn danger" onClick={() => askReset(p)}>zerar</button>}
-              </span>
+              </span>}
             </li>
           );
         })}
