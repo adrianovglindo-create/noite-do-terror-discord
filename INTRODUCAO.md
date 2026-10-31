@@ -135,8 +135,8 @@ npm run build     # gera dist/ (rode sempre antes de entregar)
 ## Segurança do ADM (no servidor)
 
 - A senha do ADM fica só no Supabase, na tabela privada `admin_secret` (bcrypt). Ninguém de fora lê essa tabela.
-- Definir ou trocar a senha: no **SQL Editor** do Supabase, rode `select public.admin_definir_senha('sua-senha');` (mínimo 8 caracteres).
+- Definir ou trocar a senha: no **SQL Editor** do Supabase, rode `select public.admin_definir_senha('sua-senha');` (mínimo 4 caracteres). Trocar a senha desconecta todos os ADMs logados.
 - Participantes (chave pública/anon) **não conseguem gravar** nas linhas `config`, `admin` e `timers`: o banco recusa (RLS).
-- O ADM grava tudo pela função `admin_write`, que confere a senha a cada gravação. Há limite de 15 senhas erradas por minuto.
-- O site só entra no modo ADM depois que o servidor confirma a senha (`admin_ok`). Trocar dados no navegador não dá acesso.
+- O login (`admin_login`) devolve uma sessão aleatória, guardada no navegador (`nt-adm-sessao`), que vale 7 dias. O ADM grava tudo pela função `admin_write`, que confere a sessão. No login, no máximo 5 senhas erradas a cada 10 minutos (para todos); quem já está logado continua funcionando mesmo durante o bloqueio.
+- O site só entra no modo ADM depois que o servidor confirma a sessão (`admin_sessao_ok`). Trocar dados no navegador não dá acesso.
 - Continua aberto aos participantes, de propósito: as próprias contas, cartas, o "pular" (linha `spin`) e o histórico.

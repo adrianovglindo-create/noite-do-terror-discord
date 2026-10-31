@@ -22,8 +22,10 @@ export const COLORS = [["azul", "Azul", "#3B82F6"], ["verde", "Verde", "#22C55E"
 export const colorHex = id => (COLORS.find(c => c[0] === id) || COLORS[0])[2];
 
 // "me" e "isAdmin" só lembram quem está usando este aparelho
-const LS_ME = "nt-me", LS_ADM = "nt-adm-pass";
-let adminPass = LS.get(LS_ADM) || null; // senha do ADM neste aparelho (o servidor confere a cada gravação)
+const LS_ME = "nt-me", LS_ADM = "nt-adm-sessao";
+LS.del("nt-adm"); LS.del("nt-adm-pass"); // chaves antigas
+// sessão do ADM neste aparelho: código aleatório dado pelo servidor no login (não é a senha)
+let adminToken = LS.get(LS_ADM) || null;
 let client = null;
 
 /* ---------- store externo (useSyncExternalStore) ---------- */
@@ -65,11 +67,11 @@ export async function initSync() {
     Store = createSupabaseStore(client, {
       onChange: data => setState({ data, loaded: true }),
       onStatus: ok => setState({ connected: ok }),
-      adminPass: () => (state.isAdmin ? adminPass : null),
+      adminToken: () => (state.isAdmin ? adminToken : null),
     });
-    // senha guardada neste aparelho: confere no servidor antes de liberar o modo ADM
-    if (adminPass) client.rpc("admin_ok", { p_pass: adminPass }).then(({ data }) => {
-      if (data === true) setState({ isAdmin: true }); else { adminPass = null; LS.del(LS_ADM); }
+    // sessão guardada neste aparelho: confere no servidor antes de liberar o modo ADM
+    if (adminToken) client.rpc("admin_sessao_ok", { p_token: adminToken }).then(({ data }) => {
+      if (data === true) setState({ isAdmin: true }); else { adminToken = null; LS.del(LS_ADM); }
     });
     setState({ status: "online" });
     await Store.start();
@@ -102,15 +104,19 @@ export function logout() { LS.del(LS_ME); setState({ me: null }); }
 
 // A senha do ADM fica só no servidor (tabela privada). Ela é definida pelo SQL Editor
 // do Supabase:  select public.admin_definir_senha('sua-senha');
+// O login devolve uma sessão (código aleatório); as gravações usam a sessão.
 export async function adminLogin(pass) {
   if (!client) return "Sem conexão com o banco.";
   if (!pass) return "Digite a senha do ADM.";
-  const { data, error } = await client.rpc("admin_ok", { p_pass: pass });
+  const { data, error } = await client.rpc("admin_login", { p_pass: pass });
   if (error) return error.message;
-  if (data !== true) return "Senha incorreta.";
-  adminPass = pass; LS.set(LS_ADM, pass); setState({ isAdmin: true }); return null;
+  if (!data) return "Senha incorreta.";
+  adminToken = data; LS.set(LS_ADM, data); setState({ isAdmin: true }); return null;
 }
-export function adminLogout() { adminPass = null; LS.del(LS_ADM); setState({ isAdmin: false }); }
+export function adminLogout() {
+  if (client && adminToken) client.rpc("admin_sair", { p_token: adminToken }).then(() => {}, () => {});
+  adminToken = null; LS.del(LS_ADM); setState({ isAdmin: false });
+}
 
 /* ---------- cartas ---------- */
 // Estas aparecem na tela na hora (otimista) e o banco confirma em seguida

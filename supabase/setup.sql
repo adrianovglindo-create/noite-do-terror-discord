@@ -122,3 +122,84 @@ drop policy if exists "remocao" on public.estado;
 create policy "insercao" on public.estado for insert to anon with check (key !~ '^(config|admin|timers)$');
 create policy "edicao" on public.estado for update to anon using (key !~ '^(config|admin|timers)$') with check (key !~ '^(config|admin|timers)$');
 create policy "remocao" on public.estado for delete to anon using (key !~ '^(config|admin|timers)$');
+
+-- ============================================================
+-- Sessões do ADM (substitui admin_ok/admin_write com senha).
+-- O login devolve um código aleatório; as gravações usam esse código.
+-- Senhas erradas: no máximo 5 a cada 10 minutos.
+-- ============================================================
+create table if not exists public.admin_sessoes (
+  token text primary key,
+  expires timestamptz not null default now() + interval '7 days'
+);
+alter table public.admin_sessoes enable row level security;
+revoke all on public.admin_sessoes from anon, authenticated;
+
+create or replace function public.admin_definir_senha(p_nova text) returns text
+language plpgsql security definer set search_path = '' as $$
+begin
+  if p_nova is null or length(p_nova) < 4 then raise exception 'A senha precisa ter pelo menos 4 caracteres.'; end if;
+  insert into public.admin_secret(id, pass_hash) values (1, extensions.crypt(p_nova, extensions.gen_salt('bf', 10)))
+  on conflict (id) do update set pass_hash = excluded.pass_hash, updated_at = now();
+  delete from public.admin_tentativas;
+  delete from public.admin_sessoes;
+  return 'Senha do ADM definida.';
+end $$;
+revoke all on function public.admin_definir_senha(text) from public, anon, authenticated;
+
+create or replace function public.admin_login(p_pass text) returns text
+language plpgsql security definer set search_path = '' as $$
+declare h text; falhas int; tok text;
+begin
+  select count(*) into falhas from public.admin_tentativas where ts > now() - interval '10 minutes';
+  if falhas >= 5 then raise exception 'Muitas tentativas erradas. Espere 10 minutos.'; end if;
+  select pass_hash into h from public.admin_secret where id = 1;
+  if h is null then raise exception 'A senha do ADM ainda não foi definida.'; end if;
+  if p_pass is not null and extensions.crypt(p_pass, h) = h then
+    tok := encode(extensions.gen_random_bytes(24), 'hex');
+    insert into public.admin_sessoes(token) values (tok);
+    delete from public.admin_sessoes where expires < now();
+    return tok;
+  end if;
+  insert into public.admin_tentativas default values;
+  delete from public.admin_tentativas where ts < now() - interval '1 day';
+  return null;
+end $$;
+revoke all on function public.admin_login(text) from public;
+grant execute on function public.admin_login(text) to anon, authenticated;
+
+create or replace function public.admin_sessao_ok(p_token text) returns boolean
+language sql security definer set search_path = '' stable as $$
+  select exists(select 1 from public.admin_sessoes where token = p_token and expires > now());
+$$;
+revoke all on function public.admin_sessao_ok(text) from public;
+grant execute on function public.admin_sessao_ok(text) to anon, authenticated;
+
+create or replace function public.admin_sair(p_token text) returns void
+language sql security definer set search_path = '' as $$
+  delete from public.admin_sessoes where token = p_token;
+$$;
+revoke all on function public.admin_sair(text) from public;
+grant execute on function public.admin_sair(text) to anon, authenticated;
+
+drop function if exists public.admin_write(text, text, jsonb, int);
+drop function if exists public.admin_ok(text);
+create function public.admin_write(p_token text, p_key text, p_value jsonb, p_ver int) returns int
+language plpgsql security definer set search_path = '' as $$
+declare n int;
+begin
+  if not public.admin_sessao_ok(p_token) then raise exception 'Sessão de ADM inválida. Entre de novo com a senha.' using errcode = '42501'; end if;
+  if coalesce(p_ver, 0) = 0 then
+    if p_value is null then return 0; end if;
+    insert into public.estado(key, value, ver) values (p_key, p_value, 1) on conflict (key) do nothing;
+    get diagnostics n = row_count; return case when n = 1 then 1 else -1 end;
+  end if;
+  if p_value is null then
+    delete from public.estado where key = p_key and ver = p_ver;
+    get diagnostics n = row_count; return case when n = 1 then 0 else -1 end;
+  end if;
+  update public.estado set value = p_value, ver = p_ver + 1, updated_at = now() where key = p_key and ver = p_ver;
+  get diagnostics n = row_count; return case when n = 1 then p_ver + 1 else -1 end;
+end $$;
+revoke all on function public.admin_write(text, text, jsonb, int) from public;
+grant execute on function public.admin_write(text, text, jsonb, int) to anon, authenticated;
